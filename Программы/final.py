@@ -13,21 +13,22 @@ fps = 0
 fps1 = 0
 fps_time = 0
 
-xb11, yb11 = 0, 270
-xb21, yb21 = 140, 300
+xb11, yb11 = 0, 260
+xb21, yb21 = 240, 300
 
-xb12, yb12 = 500, 270
+
+xb12, yb12 = 400, 260
 xb22, yb22 = 640, 300
 
 
-xz1, yz1 = 140, 220
-xz2, yz2 = 500, 390
+xz1, yz1 = 80, 220
+xz2, yz2 = 560, 390
 
 xp1, yp1 = 300, 400
 xp2, yp2 = 340, 430
 
 lowb=np.array([0,0,0])
-upb=np.array([180,255,50])
+upb=np.array([180,255,45])
 
 
 lowbl=np.array([90,100,50])
@@ -40,6 +41,10 @@ upor=np.array([30,255,255])
 lowred=np.array([0,100,50])
 upred=np.array([6,255,255])
 
+lowred1=np.array([170,100,50])
+upred1=np.array([180,255,255])
+
+
 lowgreen=np.array([72,200,38])
 upgreen=np.array([83,255,166])
 
@@ -51,6 +56,10 @@ dat1_old = 0
 dat2_old = 0
 timerd1 = time.time()
 timerd2 = time.time()
+
+timer_dat1 = time.time()
+timer_stop1 = time.time()
+
 
 deg = 0
 speed = 0
@@ -68,8 +77,12 @@ timer_b = time.time()
 timer_stop = time.time()
 timer_dat = time.time()
 xz, yz, wz, hz =0,0,0,0
-
-
+flagper = False
+flagpov = False
+flag1 = False
+timer1 = 3.5
+state = 0
+tt = 0
 def black_line():
     global xb11, yb11, xb21, yb21, xb12, yb12, xb22, yb22, lowb, upb, dat1, dat2,timerd1,timerd2,dat1_old,dat2_old
     datb1 = frame[yb11:yb21, xb11:xb21]
@@ -125,7 +138,7 @@ def black_line():
 
 
 def povorot():
-    global xp1, yp1, xp2, yp2, line, direction, per, time_per, color
+    global xp1, yp1, xp2, yp2, line, direction, per, time_per, color, xb21, xb12
     dat = frame[yp1:yp2, xp1:xp2]
     cv2.rectangle(frame, (xp1, yp1), (xp2, yp2), (0, 255, 0), 2)
     hsv = cv2.cvtColor(dat, cv2.COLOR_BGR2HSV)
@@ -158,6 +171,8 @@ def povorot():
         time_per = time.time()
     else:
         if direction == 'blue':
+            # xb21 = 240
+            # xb12 = 500
             mask = cv2.inRange(hsv, lowbl, upbl)
             imd, contours, hod = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
             x1, y1, w1, h1 = 0, 0, 0, 0
@@ -168,12 +183,14 @@ def povorot():
                     x1, y1, w1, h1 = x, y, w, h
                     line = 'blue'
             cv2.rectangle(dat, (x1, y1), (x1 + w1, y1 + h1), (255, 0, 0), 2)
-            if line == 'blue' and time_per + 0.5 < time.time():
+            if line == 'blue' and time_per + 1 < time.time():
                 time_per = time.time()
                 per += 1
                 color = 2
 
         if direction == 'orange':
+            # xb12 = 400
+            # xb21 = 140
             mask = cv2.inRange(hsv, lowor, upor)
             imd, contours, hod = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
             x2, y2, w2, h2 = 0, 0, 0, 0
@@ -184,7 +201,7 @@ def povorot():
                     x2, y2, w2, h2 = x, y, w, h
                     line = 'orange'
             cv2.rectangle(dat, (x2, y2), (x2 + w2, y2 + h2), (255, 255, 0), 2)
-            if line == 'orange' and time_per + 0.5 < time.time():
+            if line == 'orange' and time_per + 1 < time.time():
                 time_per = time.time()
                 per += 1
                 color = 4
@@ -224,6 +241,8 @@ def znak():
     cv2.rectangle(frame, (xz1, yz1), (xz2, yz2), (0, 255, 0), 2)
     hsv = cv2.cvtColor(dat, cv2.COLOR_BGR2HSV)
     mask1 = cv2.inRange(hsv, lowred, upred)
+    mask2 = cv2.inRange(hsv, lowred1, upred1)
+    mask1 = cv2.bitwise_or(mask1,mask2)
     imd, contours, hod = cv2.findContours(mask1, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     x2, y2, w2, h2 = 0, 0, 0, 0
     for contor in contours:
@@ -275,9 +294,9 @@ def pd_znak():
     kp = 0.4
     kd = 0.4
     if znak1 == "red":
-        e = (220 - (yz+hz)*1.1) - (xz+wz)
+        e = (260 - (yz+hz)*1.1) - (xz+wz)
     else:
-        e = (140 + (yz+hz)*1.1) - (xz)
+        e = (200 + (yz+hz)*1.1) - (xz)
 
     if e > -2 and e < 2: e = 0
     u = e * kp + (e - e_oldz) * kd
@@ -286,6 +305,8 @@ def pd_znak():
     if u < -90: u = -90
 
     return u
+
+
 
 while 1:
     frame = robot.get_frame(wait_new_frame=1)
@@ -296,16 +317,19 @@ while 1:
         povorot()
         if znak1 == "none":
             if direction == 'orange' and znak2 == "green":
-                if timer_dat + 0.6 > time.time():
+                if timer_dat + 0.4 > time.time():
                     dat2 = 0
 
             if direction == 'blue' and znak2 == "red":
-                if timer_dat + 0.6 > time.time():
+                if timer_dat + 0.4 > time.time():
                     dat1 = 0
 
             deg = pd()
         else:
-            znak2 = znak1
+            if(yz + hz > 160 and flagpov == False):
+                znak2 = znak1
+                timer_dat1 = time.time()
+
             timer_dat = time.time()
             deg = pd_znak()
 
@@ -316,9 +340,118 @@ while 1:
         deg = 0
 
 
+    if per > 7 and flagper == False:
+        speed = 0
+        deg = 0
+        flagpov = True
+        if(znak2 == 'red'):
+            if state == 0:
+                tt = round(time.time() - timer_dat1,2)
+                if tt > 0.6:
+                    state = 1
+                else:
+                    state = 11
 
-    if per == 12:
-        if timer_stop + 1.5 < time.time():
+
+            if state == 1:
+                if direction == 'blue':
+                    deg = -90
+                    speed = 100
+                if direction == 'orange':
+                    deg = 90
+                    speed = 100
+                if timer_stop1 + 3.2 < time.time():
+                    state = 2
+                    timer_stop1 = time.time()
+
+            elif state == 2:
+                if direction == 'blue':
+                    speed = -100
+                    deg = 90
+                if direction == 'orange':
+                    deg = -90
+                    speed = -100
+                if timer_stop1 + 1.5 < time.time():
+                    timer_stop1 = time.time()
+                    state = 3
+
+            elif state == 3:
+                if direction == 'blue':
+                    speed = 100
+                    deg = 0
+                if direction == 'orange':
+                    deg = 0
+                    speed = 100
+                if timer_stop1 + 1.5 < time.time():
+                    speed = 200
+                    per = 9
+                    if direction == 'blue':
+                        direction = 'orange'
+                    else:
+                        direction = 'blue'
+                    flagper = True
+                    flagpov = False
+                    time_per = time.time()
+
+            if state == 11:
+                if direction == 'blue':
+                    deg = 90
+                    speed = 100
+                    if timer_stop1 + 1.8 < time.time():
+                        state = 22
+                        timer_stop1 = time.time()
+                if direction == 'orange':
+                    deg = 90
+                    speed = 100
+                    if timer_stop1 + 3.2 < time.time():
+                        state = 22
+                        timer_stop1 = time.time()
+
+
+            elif state == 22:
+                if direction == 'blue':
+                    speed = -100
+                    deg = -90
+                    if timer_stop1 + 2.1 < time.time():
+                        timer_stop1 = time.time()
+                        state = 33
+                if direction == 'orange':
+                    deg = -90
+                    speed = -100
+                    if timer_stop1 + 1.5 < time.time():
+                        timer_stop1 = time.time()
+                        state = 33
+
+
+            elif state == 33:
+                if direction == 'blue':
+                    speed = -100
+                    deg = 0
+                if direction == 'orange':
+                    deg = 0
+                    speed = -100
+                if timer_stop1 + 0.5 < time.time():
+                    speed = 200
+                    per = 9
+                    if direction == 'blue':
+                        direction = 'orange'
+                    else:
+                        direction = 'blue'
+                    flagper = True
+                    flagpov = False
+                    time_per = time.time()
+
+
+
+        else:
+            speed = 200
+            flagper = True
+            flagpov = False
+    else:
+        timer_stop1 = time.time()
+
+    if per == 12 and flagper:
+        if timer_stop + 1.7 < time.time():
             speed = 0
     else:
         timer_stop = time.time()
@@ -355,8 +488,8 @@ while 1:
     robot.text_to_frame(frame, message, 0, 20)
     robot.text_to_frame(frame, direction, 150, 20)
     robot.text_to_frame(frame, line, 300, 20)
-    robot.text_to_frame(frame, znak1, 300, 40)
-    robot.text_to_frame(frame, inn, 0, 40)
+    robot.text_to_frame(frame, znak2, 300, 40)
+    robot.text_to_frame(frame, tt, 0, 40)
     robot.text_to_frame(frame, str(dat1) + '  ' + str(dat2), 0, 60)
 
     fps1 += 1
