@@ -12,6 +12,22 @@ message = ""
 fps = 0
 fps1 = 0
 fps_time = 0
+flagpon = False
+
+timesp = [0, 0, 0, 0]
+indextime = 0
+a = 0
+b = 0
+c = 0
+indexminitime = 0
+
+
+znaksp = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+znaktime = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+red = 5
+green = 3
+indesp = 0
+flagkub = False
 
 xb11, yb11 = 0, 260
 xb21, yb21 = 240, 300
@@ -56,6 +72,7 @@ dat1_old = 0
 dat2_old = 0
 timerd1 = time.time()
 timerd2 = time.time()
+timerznak = time.time()
 
 timer_dat1 = time.time()
 timer_stop1 = time.time()
@@ -138,7 +155,7 @@ def black_line():
 
 
 def povorot():
-    global xp1, yp1, xp2, yp2, line, direction, per, time_per, color, xb21, xb12
+    global xp1, yp1, xp2, yp2, line, direction, per, time_per, color, xb21, xb12, timesp, indesp, timerznak
     dat = frame[yp1:yp2, xp1:xp2]
     cv2.rectangle(frame, (xp1, yp1), (xp2, yp2), (0, 255, 0), 2)
     hsv = cv2.cvtColor(dat, cv2.COLOR_BGR2HSV)
@@ -168,7 +185,9 @@ def povorot():
         cv2.rectangle(dat, (x2, y2), (x2 + w2, y2 + h2), (255, 255, 0), 2)
         direction = line
         per = 1
+        indesp = 0
         time_per = time.time()
+        timerznak = time.time()
     else:
         if direction == 'blue':
             # xb21 = 240
@@ -184,8 +203,12 @@ def povorot():
                     line = 'blue'
             cv2.rectangle(dat, (x1, y1), (x1 + w1, y1 + h1), (255, 0, 0), 2)
             if line == 'blue' and time_per + 1 < time.time():
-                time_per = time.time()
                 per += 1
+                indesp = 0
+                if (per < 6):
+                    timesp[(per - 1) % 4] = round(time.time() - time_per, 2)
+                time_per = time.time()
+                timerznak = time.time()
                 color = 2
 
         if direction == 'orange':
@@ -202,8 +225,12 @@ def povorot():
                     line = 'orange'
             cv2.rectangle(dat, (x2, y2), (x2 + w2, y2 + h2), (255, 255, 0), 2)
             if line == 'orange' and time_per + 1 < time.time():
-                time_per = time.time()
                 per += 1
+                indesp = 0
+                if (per < 6):
+                    timesp[(per - 1) % 4] = round(time.time() - time_per, 2)
+                time_per = time.time()
+                timerznak = time.time()
                 color = 4
 
 
@@ -278,6 +305,7 @@ def znak():
                 znak1 = "green"
                 xz, yz, wz, hz = x3, y3, w3, h3
                 color = 3
+
             else:
                 cv2.rectangle(dat, (x2, y2), (x2 + w2, y2 + h2), (0, 255, 0), 2)
                 znak1 = 'red'
@@ -306,8 +334,23 @@ def pd_znak():
 
     return u
 
-
-
+def peres():
+    global indextime, a, b, c, znaksp, indexminitime, timesp
+    for i in range(4):
+        a = round(timesp[indextime] * 0.34, 2)
+        b = round(timesp[indextime] * 0.7, 2)
+        if (znaksp[indextime][0] > 0 and znaksp[indextime][1] > 0):
+            znaksp[indextime][2] = znaksp[indextime][1]
+            znaksp[indextime][1] = 0
+        elif (znaksp[indextime][0] > 0):
+            if(znaktime[indextime][0] > a):
+                if (znaktime[indextime][0] <= b):
+                    znaksp[indextime][1] = znaksp[indextime][0]
+                    znaksp[indextime][0] = 0
+                else:
+                    znaksp[indextime][2] = znaksp[indextime][0]
+                    znaksp[indextime][0] = 0
+        indextime = indextime + 1
 while 1:
     frame = robot.get_frame(wait_new_frame=1)
 
@@ -328,7 +371,17 @@ while 1:
         else:
             if(yz + hz > 160 and flagpov == False):
                 znak2 = znak1
+                if (flagkub == False and per < 5):
+                    znaksp[per % 4][indesp] = color
+                    znaktime[per % 4][indesp] = round(time.time() - timerznak, 1)
+                    flagkub = True
+                    indesp = indesp + 1
                 timer_dat1 = time.time()
+            if(yz + hz < 100 and flagpov == False):
+                flagkub = False
+                if per > 8 and flagpon == False:
+                    flagpon = True
+                    peres()
 
             timer_dat = time.time()
             deg = pd_znak()
@@ -451,7 +504,7 @@ while 1:
         timer_stop1 = time.time()
 
     if per == 12 and flagper:
-        if timer_stop + 1.7 < time.time():
+        if timer_stop + timesp[0] * 0.6 < time.time():
             speed = 0
     else:
         timer_stop = time.time()
@@ -481,7 +534,7 @@ while 1:
             speed = 0
 
 
-    cv2.rectangle(frame, (0, 0), (640, 80), (0, 0, 0), -1)
+    cv2.rectangle(frame, (0, 0), (640, 105), (0, 0, 0), -1)
     cv2.rectangle(frame, (xb11, yb11), (xb21, yb21), (0, 0, 255), 2)
     cv2.rectangle(frame, (xb12, yb12), (xb22, yb22), (0, 0, 255), 2)
 
@@ -499,5 +552,8 @@ while 1:
         fps1 = 0
 
     robot.text_to_frame(frame, 'fps = ' + str(fps), 500, 20)
+    robot.text_to_frame(frame, 'time = ' + str(timesp), 200, 65)
+    robot.text_to_frame(frame, 'kub = ' + str(znaksp), 0, 90)
+    robot.text_to_frame(frame, '' + str(znaktime), 0, 105)
     robot.text_to_frame(frame, 'per = ' + str(per), 500, 40)
     robot.set_frame(frame, 40)
