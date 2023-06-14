@@ -13,6 +13,8 @@ fps = 0
 fps1 = 0
 fps_time = 0
 
+timesp = [0, 0, 0, 0]
+
 xb11, yb11 = 0, 270
 xb21, yb21 = 140, 300
 
@@ -112,14 +114,8 @@ def black_line():
         if timerd2 + 0.05 > time.time():
             dat2 = dat2_old
 
-def znak():
-    global xz1, yz1, xz2, yz2
-    dat = frame[yz1:yz2, xz1:xz2]
-    cv2.rectangle(frame, (xz1, yz1), (xz2, yz2), (0, 255, 0), 2)
-
-
 def povorot():
-    global xp1, yp1, xp2, yp2, line, direction, per, time_per, color
+    global xp1, yp1, xp2, yp2, line, direction, per, time_per, color, timesp
     dat = frame[yp1:yp2, xp1:xp2]
     cv2.rectangle(frame, (xp1, yp1), (xp2, yp2), (0, 255, 0), 2)
     hsv = cv2.cvtColor(dat, cv2.COLOR_BGR2HSV)
@@ -163,8 +159,11 @@ def povorot():
                     line = 'blue'
             cv2.rectangle(dat, (x1, y1), (x1 + w1, y1 + h1), (255, 0, 0), 2)
             if line == 'blue' and time_per + 0.5 < time.time():
-                time_per = time.time()
                 per += 1
+                if(per < 6):
+                    timesp[(per - 1) % 4] = round(time.time() - time_per, 2)
+                time_per = time.time()
+
                 color = 2
 
         if direction == 'orange':
@@ -179,11 +178,11 @@ def povorot():
                     line = 'orange'
             cv2.rectangle(dat, (x2, y2), (x2 + w2, y2 + h2), (255, 255, 0), 2)
             if line == 'orange' and time_per + 0.5 < time.time():
-                time_per = time.time()
                 per += 1
+                if (per < 6):
+                    timesp[(per - 1) % 4] = round(time.time() - time_per, 2)
+                time_per = time.time()
                 color = 4
-
-
 
 def pd():
     global  e_old,dat2,dat1
@@ -213,24 +212,21 @@ def pd():
     return u
 
 
-
 while 1:
     frame = robot.get_frame(wait_new_frame=1)
     if speed > 0:
         black_line()
-        znak()
         povorot()
         deg = pd()
     else:
         black_line()
-        znak()
         povorot()
         deg = 0
 
 
 
     if per == 12:
-        if timer_stop + 1.4 < time.time():
+        if timer_stop + timesp[0] * 0.6 < time.time():
             speed = 0
     else:
         timer_stop = time.time()
@@ -278,4 +274,5 @@ while 1:
 
     robot.text_to_frame(frame, 'fps = ' + str(fps), 500, 20)
     robot.text_to_frame(frame, 'per = ' + str(per), 500, 40)
+    robot.text_to_frame(frame, 'time = ' + str(timesp), 200, 60)
     robot.set_frame(frame, 40)
