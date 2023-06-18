@@ -1,10 +1,10 @@
-import cv2
+import cv2              # Импорт библиотек
 import RobotAPI as rapi
 import numpy as np
 import serial
 import time
 
-port = serial.Serial("/dev/ttyS0", baudrate=115200, stopbits=serial.STOPBITS_ONE)
+port = serial.Serial("/dev/ttyS0", baudrate=115200, stopbits=serial.STOPBITS_ONE)   # Создание переменных
 robot = rapi.RobotAPI(flag_serial=False)
 robot.set_camera(100, 640, 480)
 
@@ -18,7 +18,6 @@ timesp = [0, 0, 0, 0]
 indextime = 0
 a = 0
 b = 0
-c = 0
 indexminitime = 0
 
 
@@ -100,7 +99,7 @@ flag1 = False
 timer1 = 3.5
 state = 0
 tt = 0
-def black_line():
+def black_line():       # Функция распознования линии
     global xb11, yb11, xb21, yb21, xb12, yb12, xb22, yb22, lowb, upb, dat1, dat2,timerd1,timerd2,dat1_old,dat2_old
     datb1 = frame[yb11:yb21, xb11:xb21]
     hsv1 = cv2.cvtColor(datb1, cv2.COLOR_BGR2HSV)
@@ -154,14 +153,14 @@ def black_line():
             dat2 = dat2_old
 
 
-def povorot():
+def povorot():      # Распознавание линии
     global xp1, yp1, xp2, yp2, line, direction, per, time_per, color, xb21, xb12, timesp, indesp, timerznak
     dat = frame[yp1:yp2, xp1:xp2]
     cv2.rectangle(frame, (xp1, yp1), (xp2, yp2), (0, 255, 0), 2)
     hsv = cv2.cvtColor(dat, cv2.COLOR_BGR2HSV)
     line = 'none'
 
-    if direction == 'none':
+    if direction == 'none':     # Если нету линии
         mask = cv2.inRange(hsv, lowbl, upbl)
         imd, contours, hod = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         x1, y1, w1, h1 = 0, 0, 0, 0
@@ -189,7 +188,7 @@ def povorot():
         time_per = time.time()
         timerznak = time.time()
     else:
-        if direction == 'blue':
+        if direction == 'blue':     # Если линия синия
             # xb21 = 240
             # xb12 = 500
             mask = cv2.inRange(hsv, lowbl, upbl)
@@ -211,7 +210,7 @@ def povorot():
                 timerznak = time.time()
                 color = 2
 
-        if direction == 'orange':
+        if direction == 'orange':       # Если линия оранжевая
             # xb12 = 400
             # xb21 = 140
             mask = cv2.inRange(hsv, lowor, upor)
@@ -234,7 +233,7 @@ def povorot():
                 color = 4
 
 
-def pd():
+def pd():       # Функция самого исполнителя поворота для линии
     global  e_old,dat2,dat1
     kp = 0.4
     kd = 0.4
@@ -262,7 +261,7 @@ def pd():
     return u
 
 
-def znak():
+def znak():     # Функция распознавания знака (красного или зелёного)
     global xz1, yz1, xz2, yz2, znak1, color,  xz, yz, wz, hz, time_z
     dat = frame[yz1:yz2, xz1:xz2]
     cv2.rectangle(frame, (xz1, yz1), (xz2, yz2), (0, 255, 0), 2)
@@ -317,7 +316,7 @@ def znak():
             elif h2>0:
                 cv2.rectangle(dat, (x2, y2), (x2 + w2, y2 + h2), (0, 255, 0), 2)
 
-def pd_znak():
+def pd_znak():      # Функция обьезда знака
     global  e_oldz, xz, yz, wz, hz ,znak1
     kp = 0.4
     kd = 0.4
@@ -334,8 +333,8 @@ def pd_znak():
 
     return u
 
-def peres():
-    global indextime, a, b, c, znaksp, indexminitime, timesp
+def peres():        #функция перестановки переменной znaksp (список знаков)
+    global indextime, a, b, znaksp, indexminitime, timesp
     for i in range(4):
         a = round(timesp[indextime] * 0.34, 2)
         b = round(timesp[indextime] * 0.7, 2)
@@ -354,7 +353,7 @@ def peres():
 while 1:
     frame = robot.get_frame(wait_new_frame=1)
 
-    if speed > 0:
+    if speed > 0:       # Начало движения
         black_line()
         znak()
         povorot()
@@ -372,7 +371,7 @@ while 1:
             if(yz + hz > 160 and flagpov == False):
                 znak2 = znak1
                 if (flagkub == False and per < 5):
-                    znaksp[per % 4][indesp] = color
+                    znaksp[per % 4][indesp] = color             # Запись знаков в список
                     znaktime[per % 4][indesp] = round(time.time() - timerznak, 1)
                     flagkub = True
                     indesp = indesp + 1
@@ -393,7 +392,7 @@ while 1:
         deg = 0
 
 
-    if per > 7 and flagper == False:
+    if per > 7 and flagper == False:        # Проверка знака после второго круга для разворота или продолжения движения
         speed = 0
         deg = 0
         flagpov = True
@@ -503,7 +502,7 @@ while 1:
     else:
         timer_stop1 = time.time()
 
-    if per == 12 and flagper:
+    if per == 12 and flagper:       # Проверка перекрестков и если их 12 то остановка (3 круга завершены)
         if timer_stop + timesp[0] * 0.6 < time.time():
             speed = 0
     else:
@@ -526,7 +525,7 @@ while 1:
         port.reset_input_buffer()
 
 
-    if inn == '0' and timer_b + 1 < time.time():
+    if inn == '0' and timer_b + 1 < time.time():        # Проверка нажатие кнопки
         timer_b = time.time()
         if speed == 0:
             speed = 200
@@ -534,7 +533,7 @@ while 1:
             speed = 0
 
 
-    cv2.rectangle(frame, (0, 0), (640, 105), (0, 0, 0), -1)
+    cv2.rectangle(frame, (0, 0), (640, 105), (0, 0, 0), -1)             # Вывод показаний на экран
     cv2.rectangle(frame, (xb11, yb11), (xb21, yb21), (0, 0, 255), 2)
     cv2.rectangle(frame, (xb12, yb12), (xb22, yb22), (0, 0, 255), 2)
 
