@@ -371,7 +371,7 @@ while 1:
             if(yz + hz > 160 and flagpov == False):
                 znak2 = znak1
                 if (flagkub == False and per < 5):
-                    znaksp[per % 4][indesp] = color             # Запись знаков в список
+                    znaksp[per % 4][indesp] = color
                     znaktime[per % 4][indesp] = round(time.time() - timerznak, 1)
                     flagkub = True
                     indesp = indesp + 1

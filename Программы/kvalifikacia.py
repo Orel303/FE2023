@@ -1,10 +1,10 @@
-import cv2
+import cv2              # Импорт библиотек
 import RobotAPI as rapi
 import numpy as np
 import serial
 import time
 
-port = serial.Serial("/dev/ttyS0", baudrate=115200, stopbits=serial.STOPBITS_ONE)
+port = serial.Serial("/dev/ttyS0", baudrate=115200, stopbits=serial.STOPBITS_ONE)   # Создание переменных
 robot = rapi.RobotAPI(flag_serial=False)
 robot.set_camera(100, 640, 480)
 
@@ -61,7 +61,7 @@ timer_b = time.time()
 timer_stop = time.time()
 
 
-def black_line():
+def black_line():       # Функция распознования линии
     global xb11, yb11, xb21, yb21, xb12, yb12, xb22, yb22, lowb, upb, dat1, dat2,timerd1,timerd2,dat1_old,dat2_old
     datb1 = frame[yb11:yb21, xb11:xb21]
     hsv1 = cv2.cvtColor(datb1, cv2.COLOR_BGR2HSV)
@@ -114,14 +114,14 @@ def black_line():
         if timerd2 + 0.05 > time.time():
             dat2 = dat2_old
 
-def povorot():
+def povorot():      # Распознавание линии
     global xp1, yp1, xp2, yp2, line, direction, per, time_per, color, timesp
     dat = frame[yp1:yp2, xp1:xp2]
     cv2.rectangle(frame, (xp1, yp1), (xp2, yp2), (0, 255, 0), 2)
     hsv = cv2.cvtColor(dat, cv2.COLOR_BGR2HSV)
     line = 'none'
 
-    if direction == 'none':
+    if direction == 'none':     # Если нету линии
         mask = cv2.inRange(hsv, lowbl, upbl)
         imd, contours, hod = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         x1, y1, w1, h1 = 0, 0, 0, 0
@@ -147,7 +147,7 @@ def povorot():
         per = 1
         time_per = time.time()
     else:
-        if direction == 'blue':
+        if direction == 'blue':     # Если линия синия
             mask = cv2.inRange(hsv, lowbl, upbl)
             imd, contours, hod = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
             x1, y1, w1, h1 = 0, 0, 0, 0
@@ -166,7 +166,7 @@ def povorot():
 
                 color = 2
 
-        if direction == 'orange':
+        if direction == 'orange':       # Если линия оранжевая
             mask = cv2.inRange(hsv, lowor, upor)
             imd, contours, hod = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
             x2, y2, w2, h2 = 0, 0, 0, 0
@@ -184,7 +184,7 @@ def povorot():
                 time_per = time.time()
                 color = 4
 
-def pd():
+def pd():       # Функция самого исполнителя поворота для линии
     global  e_old,dat2,dat1
     kp = 0.4
     kd = 0.4
@@ -214,7 +214,7 @@ def pd():
 
 while 1:
     frame = robot.get_frame(wait_new_frame=1)
-    if speed > 0:
+    if speed > 0:          # Начало движения
         black_line()
         povorot()
         deg = pd()
@@ -225,7 +225,7 @@ while 1:
 
 
 
-    if per == 12:
+    if per == 12:       # Проверка перекрестков и если их 12 то остановка (3 круга завершены)
         if timer_stop + timesp[0] * 0.6 < time.time():
             speed = 0
     else:
@@ -248,7 +248,7 @@ while 1:
         port.reset_input_buffer()
 
 
-    if inn == '0' and timer_b + 1 < time.time():
+    if inn == '0' and timer_b + 1 < time.time():        # Проверка нажатие кнопки
         timer_b = time.time()
         if speed == 0:
             speed = 200
@@ -256,7 +256,7 @@ while 1:
             speed = 0
 
 
-    cv2.rectangle(frame, (0, 0), (640, 80), (0, 0, 0), -1)
+    cv2.rectangle(frame, (0, 0), (640, 80), (0, 0, 0), -1)             # Вывод показаний на экран
     cv2.rectangle(frame, (xb11, yb11), (xb21, yb21), (0, 0, 255), 2)
     cv2.rectangle(frame, (xb12, yb12), (xb22, yb22), (0, 0, 255), 2)
 
