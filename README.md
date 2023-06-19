@@ -10,14 +10,14 @@
 5) В папке ![Фотографии](https://github.com/Orel303/FE2023/tree/main/%D0%A4%D0%BE%D1%82%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D0%B8%D0%B8) находятся семь фотографий, из них шесть фотографий робота с разных ракурсов и одна фотогрфия команды.
 
 # Пояснения к программам
-Тут будет краткий разбор программ, которые я использую для робота.
-1) ![RobotAPI.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/RobotAPI.py) - в этом файле содержится класс для работы файла ![start_robot.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/start_robot.py), а с помощью него уже загружается файл на raspberry pi
+Здесь находится краткий разбор программ, которые я использую для робота.
+1) ![RobotAPI.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/RobotAPI.py) - в этом файле содержится класс для работы робота с камерой. Робот считывант изображение с камеры и работает с ним
 2) ![autostart.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/autostart.py) - этот файл нужен для raspberry pi, чтобы при включении машинки сразу запускалась программа.
 3) ![final.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/final.py) и ![kvalifikacia.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/kvalifikacia.py) - эти файлы говорят сами за себя. Строение этих фалов достаточно лёгкое. Основная программа - это kvalifikacia.py. В final.py добавляется распознование и объезд знаков. Вся их работа делится на этапы:
 - Ожидание кнопки - программа ждёт кнопку и скорость = 0
 - Движение - в kvalifikacia.py робот смотри бортики и линии и по ним едит, а в final.py добавляется распознование знаков и их объезд.
 - Остановка - когда робот насчитает 12 пер (это количество линий, которые он проехал оранжевые или синие) он останавливается
-4) ![start_robot.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/start_robot.py) - в этом файле код "лаунчер" при запуске этого файла открывается окошко подключения к raspberry pi(raspberry раздаёт WI-FI сеть) и с помощью этого файла можно загружать файлы final.py или kvalifikacia.py, а также autostart.py
+4) ![start_robot.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/start_robot.py) - в этом файле приложение, при запуске этого файла открывается окошко подключения к raspberry pi(raspberry раздаёт WI-FI сеть) и с помощью этого файла можно загружать файлы final.py или kvalifikacia.py, а также autostart.py
 
 # 2 часть
 В этой части я описываю что нужно сделать чтобы всё работало, а именно как прошиться плату ARDUINO UNO и как прошить raspberry.
