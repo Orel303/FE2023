@@ -11,18 +11,19 @@
 
 # Пояснения к программам
 Здесь находится краткий разбор программ, которые я использую для робота.
-1) ![RobotAPI.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/RobotAPI.py) - в этом файле содержится класс для работы робота с камерой. Робот считывант изображение с камеры и работает с ним
+1) ![RobotAPI.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/RobotAPI.py) - в этом файле содержится класс для работы робота с камерой. Робот считывант изображение с камеры и работает с ним.
 2) ![autostart.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/autostart.py) - этот файл нужен для raspberry pi, чтобы при включении машинки сразу запускалась программа.
-3) ![final.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/final.py) и ![kvalifikacia.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/kvalifikacia.py) - эти файлы говорят сами за себя. Строение этих фалов достаточно лёгкое. Основная программа - это kvalifikacia.py. В final.py добавляется распознование и объезд знаков. Вся их работа делится на этапы:
+3) ![fe2023_a.ino](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/fe2023_a.ino) - этот файл нужен для прошивки ARDUINO.
+4) ![final.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/final.py) и ![kvalifikacia.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/kvalifikacia.py) - эти файлы говорят сами за себя. Строение этих фалов достаточно лёгкое. Основная программа - это kvalifikacia.py. В final.py добавляется распознование и объезд знаков. Вся их работа делится на этапы:
 - Ожидание кнопки - программа ждёт кнопку и скорость = 0
 - Движение - в kvalifikacia.py робот смотри бортики и линии и по ним едит, а в final.py добавляется распознование знаков и их объезд.
 - Остановка - когда робот насчитает 12 пер (это количество линий, которые он проехал оранжевые или синие) он останавливается
-4) ![start_robot.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/start_robot.py) - в этом файле приложение, при запуске этого файла открывается окошко подключения к raspberry pi(raspberry раздаёт WI-FI сеть) и с помощью этого файла можно загружать файлы final.py или kvalifikacia.py, а также autostart.py
+5) ![start_robot.py](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/start_robot.py) - в этом файле приложение, при запуске этого файла открывается окошко подключения к raspberry pi(raspberry раздаёт WI-FI сеть) и с помощью этого файла можно загружать файлы final.py или kvalifikacia.py, а также autostart.py
 
 # Загрузка программы на ARDUINO
 Здесь я описываю как прошиться плату ARDUINO UNO.
 1) Чтобы прошить ARDUINO UNO надо скачать приложение Arduino IDE и установить.
-2) После установление приложения надо подключить плату ARDUINO UNO к компьютеру и с помощьюю файла ![fe2023_a.ino](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/fe2023_a.ino) перепрошить её на нижний уровень. После этих действий переходим к raspberry.
+2) После установление приложения надо подключить плату ARDUINO UNO к компьютеру и с помощьюю файла ![fe2023_a.ino](https://github.com/Orel303/FE2023/blob/main/%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%8B/fe2023_a.ino) прошить плату. После этих действий переходим к raspberry.
 
 # Загрузка программы на raspberry pi
 - Для того чтобы raspberry работало, надо вытащить карту памяти из raspberry и подключить её к компьютеру. После этого устанавливаем систему и раздаём интернет от raspberry. В папке Программы есть файл start_robot.py и именно он помогает подключиться к raspberry и загрузить прогрумму.
